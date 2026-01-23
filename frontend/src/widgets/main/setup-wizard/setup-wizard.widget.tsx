@@ -89,13 +89,34 @@ export const SetupWizardWidget = ({ hasPlatformApps, platform }: IProps) => {
         }
     }
 
-    // Get install button from first block
-    const installBlock = selectedApp?.blocks?.[0]
-    const installButton = installBlock?.buttons?.[0]
+    // Find first button from all blocks (install button - outline)
+    const findFirstButton = (): TSubscriptionPageButtonConfig | undefined => {
+        if (!selectedApp?.blocks) return undefined
+        for (const block of selectedApp.blocks) {
+            if (block.buttons?.[0]) {
+                return block.buttons[0]
+            }
+        }
+        return undefined
+    }
 
-    // Get subscription button from second block
-    const subscriptionBlock = selectedApp?.blocks?.[1]
-    const subscriptionButton = subscriptionBlock?.buttons?.[0]
+    // Find second button from all blocks (finish button - green)
+    const findSecondButton = (): TSubscriptionPageButtonConfig | undefined => {
+        if (!selectedApp?.blocks) return undefined
+        let buttonCount = 0
+        for (const block of selectedApp.blocks) {
+            for (const button of block.buttons || []) {
+                buttonCount++
+                if (buttonCount === 2) {
+                    return button
+                }
+            }
+        }
+        return undefined
+    }
+
+    const installButton = findFirstButton()
+    const subscriptionButton = findSecondButton()
 
     const handleInstallClick = () => {
         if (installButton) {
@@ -109,7 +130,8 @@ export const SetupWizardWidget = ({ hasPlatformApps, platform }: IProps) => {
         if (subscriptionButton) {
             handleButtonClick(subscriptionButton)
             vibrate([80])
-            setCurrentStep(3)
+            const totalSteps = selectedApp?.blocks?.length ?? 3
+            setCurrentStep(totalSteps)
         }
     }
 
@@ -121,15 +143,12 @@ export const SetupWizardWidget = ({ hasPlatformApps, platform }: IProps) => {
         return getLocalizedText(block.description, currentLang)
     }
 
-    const step1Text = getStepDescription(0)
-    const step2Text = getStepDescription(1)
-    const step3Text = getStepDescription(2)
-
-    const steps = [
-        { text: step1Text, isLast: false },
-        { text: step2Text, isLast: false },
-        { text: step3Text, isLast: true }
-    ]
+    // Build steps dynamically based on blocks count
+    const blocksCount = selectedApp?.blocks?.length ?? 0
+    const steps = Array.from({ length: blocksCount }, (_, index) => ({
+        text: getStepDescription(index),
+        isLast: index === blocksCount - 1
+    }))
 
     return (
         <div className={classes.container}>

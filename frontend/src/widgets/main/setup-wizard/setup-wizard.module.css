@@ -120,71 +120,23 @@
 
 /* Active step with glowing border animation */
 .stepContentActive {
-    border-color: transparent;
-    background: 
-        linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-        linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.1)) border-box;
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    background: #0a0a0a;
+    position: relative;
+    animation: glowPulse 2s ease-in-out infinite;
 }
 
-.stepContentActive::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 16px;
-    padding: 1px;
-    background: linear-gradient(
-        var(--glow-angle, 0deg),
-        transparent 0%,
-        transparent 30%,
-        #3b82f6 45%,
-        #60a5fa 50%,
-        #3b82f6 55%,
-        transparent 70%,
-        transparent 100%
-    );
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: glowRotate 3s linear infinite;
-}
-
-@keyframes glowRotate {
-    0% {
-        --glow-angle: 0deg;
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.3),
+                    0 0 16px rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.4);
     }
-    100% {
-        --glow-angle: 360deg;
+    50% {
+        box-shadow: 0 0 16px rgba(59, 130, 246, 0.6),
+                    0 0 32px rgba(59, 130, 246, 0.3);
+        border-color: rgba(59, 130, 246, 0.8);
     }
-}
-
-/* Fallback for browsers that don't support @property */
-@supports not (background: paint(something)) {
-    .stepContentActive::before {
-        animation: glowRotateFallback 3s linear infinite;
-    }
-    
-    @keyframes glowRotateFallback {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-}
-
-@property --glow-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
 }
 
 .stepText {
